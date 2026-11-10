@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { content } from "./content";
+import { content, enlaces, correo, whatsapp } from "./content";
+
+const enlaceWhatsapp = (mensaje) =>
+  `https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(mensaje)}`;
 
 const LINKEDIN = "https://linkedin.com/in/santiago-barrientos-03a651332";
 const GITHUB = "https://github.com/SantiagoBarrientosF";
@@ -13,6 +16,8 @@ const BASE = [
   { bg: "bg-mint" },
   { bg: "bg-pink" },
   { bg: "bg-sky" },
+  { bg: "bg-mint" },
+  { bg: "bg-coral" },
 ];
 
 const TECNOLOGIAS = [
@@ -84,12 +89,24 @@ function Chat({ t }) {
         ))}
       </div>
 
-      <div className="border-t-[3px] border-ink px-4 py-3 text-[.92rem] text-[#6b7394]">{t.ui.chatPlaceholder}</div>
+      {whatsapp ? (
+        <a
+          href={enlaceWhatsapp(t.ui.whatsappMsg)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block border-t-[3px] border-ink bg-mint px-4 py-3 text-[.95rem] font-bold text-ink transition hover:bg-sun focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-ink"
+        >
+          {t.ui.chatWhatsapp}
+        </a>
+      ) : (
+        <div className="border-t-[3px] border-ink px-4 py-3 text-[.92rem] text-[#6b7394]">{t.ui.chatPlaceholder}</div>
+      )}
     </div>
   );
 }
 
-function Proyecto({ p, base }) {
+function Proyecto({ p, base, verProyecto }) {
+  const enlace = enlaces[p.id];
   return (
     <article
       className={`rounded-[18px] border-[3px] border-line text-ink shadow-[6px_6px_0_var(--line)] ${base.bg} ${
@@ -116,6 +133,16 @@ function Proyecto({ p, base }) {
           </span>
         ))}
       </div>
+      {enlace && (
+        <a
+          href={enlace}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-block rounded-full border-[3px] border-ink bg-white px-4 py-1.5 text-[.92rem] font-bold text-ink shadow-[3px_3px_0_var(--color-ink)] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0_var(--color-ink)]"
+        >
+          {verProyecto} ↗
+        </a>
+      )}
     </article>
   );
 }
@@ -183,7 +210,7 @@ export default function Portafolio({ lang = "es" }) {
           <Titulo>{t.ui.projectsTitle}</Titulo>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-[26px]">
             {t.projects.map((p, i) => (
-              <Proyecto key={i} p={p} base={BASE[i]} />
+              <Proyecto key={p.id} p={p} base={BASE[i % BASE.length]} verProyecto={t.ui.viewProject} />
             ))}
           </div>
         </Contenedor>
@@ -230,7 +257,17 @@ export default function Portafolio({ lang = "es" }) {
         <Contenedor>
           <Titulo className="max-w-[16ch]">{t.ui.contactTitle}</Titulo>
           <div className="flex flex-wrap gap-3.5">
-            <Boton href={LINKEDIN} externo>{t.ui.contactLinkedin}</Boton>
+            {whatsapp && (
+              <Boton href={enlaceWhatsapp(t.ui.whatsappMsg)} externo>
+                {t.ui.contactWhatsapp}
+              </Boton>
+            )}
+            {correo && (
+              <Boton href={`mailto:${correo}`} alt={!!whatsapp}>
+                {t.ui.contactEmail}
+              </Boton>
+            )}
+            <Boton href={LINKEDIN} alt={!!(whatsapp || correo)} externo>{t.ui.contactLinkedin}</Boton>
             <Boton href={GITHUB} alt externo>{t.ui.contactGithub}</Boton>
           </div>
         </Contenedor>
